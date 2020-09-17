@@ -1,6 +1,8 @@
 #pragma once
 
 #include <QMainWindow>
+#include <QFileSystemModel>
+#include <QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -15,4 +17,5 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    QScopedPointer<QFileSystemModel> mFSModel;
 };
