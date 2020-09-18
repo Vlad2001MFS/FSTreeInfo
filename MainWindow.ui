@@ -18,6 +18,18 @@
     <item>
      <widget class="QTreeView" name="fsTreeView"/>
     </item>
+    <item>
+     <widget class="QGroupBox" name="dirInfoBox">
+      <property name="title">
+       <string>Current Directory: </string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <widget class="QTableView" name="dirInfoView"/>
+       </item>
+      </layout>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">

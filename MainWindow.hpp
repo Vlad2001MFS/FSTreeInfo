@@ -3,6 +3,7 @@
 #include <QMainWindow>
 #include <QFileSystemModel>
 #include <QScopedPointer>
+#include "DirInfoModel.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -15,7 +16,11 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+    void on_fsTreeView_clicked(const QModelIndex &index);
+
 private:
     Ui::MainWindow *ui;
     QScopedPointer<QFileSystemModel> mFSModel;
+    QScopedPointer<DirInfoModel> mDirInfoModel;
 };

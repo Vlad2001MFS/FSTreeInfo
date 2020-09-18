@@ -8,12 +8,26 @@ MainWindow::MainWindow(QWidget *parent)
 
     mFSModel.reset(new QFileSystemModel());
     mFSModel->setRootPath(QDir::rootPath());
+    mFSModel->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
 
     ui->fsTreeView->setModel(mFSModel.get());
     ui->fsTreeView->setCurrentIndex(mFSModel->index(QDir::currentPath()));
     ui->fsTreeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+    mDirInfoModel.reset(new DirInfoModel());
+    ui->dirInfoView->setModel(mDirInfoModel.get());
 }
 
 MainWindow::~MainWindow() {
     delete ui;
+}
+
+void MainWindow::on_fsTreeView_clicked(const QModelIndex &index) {
+    if (mFSModel->isDir(index)) {
+        auto fileInfo = mFSModel->fileInfo(index);
+
+        ui->dirInfoBox->setTitle("Current Directory: " + fileInfo.absoluteFilePath());
+        mDirInfoModel->setTargetDir(fileInfo.absoluteFilePath());
+        ui->dirInfoView->setRootIndex(mDirInfoModel->index(0, 0));
+    }
 }
