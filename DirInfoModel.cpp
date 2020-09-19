@@ -4,8 +4,9 @@
 void gatherFilesInfo(const QString &dirPath, QMap<QString, FileGroupInfo> &data) {
     QFileInfoList filesList = QDir(dirPath).entryInfoList(QDir::Filter::Files | QDir::Filter::Hidden | QDir::Filter::System);
     for(auto &file : filesList) {
-        FileGroupInfo &info = data[file.suffix()];
-        info.name = file.suffix();
+        QString fileExtension = file.suffix().toLower();
+        FileGroupInfo &info = data[fileExtension];
+        info.name = fileExtension;
         info.filesCount++;
         info.totalSize += file.size();
     }
