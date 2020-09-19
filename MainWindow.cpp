@@ -24,10 +24,17 @@ MainWindow::~MainWindow() {
 
 void MainWindow::on_fsTreeView_clicked(const QModelIndex &index) {
     if (mFSModel->isDir(index)) {
+        ui->statusbar->showMessage("Scanning directory...");
+        ui->statusbar->repaint();
+
         auto fileInfo = mFSModel->fileInfo(index);
 
         ui->dirInfoBox->setTitle("Current Directory: " + fileInfo.absoluteFilePath());
         mDirInfoModel->setTargetDir(fileInfo.absoluteFilePath());
         ui->dirInfoView->setRootIndex(mDirInfoModel->index(0, 0));
+
+        ui->subdirsCountLabel->setNum(QDir(fileInfo.absoluteFilePath()).entryList(QDir::AllDirs | QDir::NoDotAndDotDot).size());
+
+        ui->statusbar->showMessage("Ready");
     }
 }

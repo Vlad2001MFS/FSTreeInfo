@@ -51,7 +51,7 @@ void DirInfoModel::setTargetDir(const QString &dirPath) {
 }
 
 int DirInfoModel::rowCount(const QModelIndex &parent) const {
-    return mGroupsData.size();
+    return mGroupsData.size() > 0 ? mGroupsData.size() + 1 : 0;
 }
 
 int DirInfoModel::columnCount(const QModelIndex &parent) const {
