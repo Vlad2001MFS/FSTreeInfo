@@ -45,7 +45,9 @@ void DirInfoModel::setTargetDir(const QString &dirPath) {
         mTotalInfo.filesCount += group.filesCount;
         mTotalInfo.totalSize += group.totalSize;
     }
-    mTotalInfo.avgSize = mTotalInfo.totalSize / mTotalInfo.filesCount;
+    if (mTotalInfo.filesCount > 0) {
+        mTotalInfo.avgSize = mTotalInfo.totalSize / mTotalInfo.filesCount;
+    }
 }
 
 int DirInfoModel::rowCount(const QModelIndex &parent) const {
