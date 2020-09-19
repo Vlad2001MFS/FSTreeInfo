@@ -8,7 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     mFSModel.reset(new QFileSystemModel());
     mFSModel->setRootPath(QDir::rootPath());
-    mFSModel->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+    mFSModel->setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
 
     ui->fsTreeView->setModel(mFSModel.get());
     ui->fsTreeView->setCurrentIndex(mFSModel->index(QDir::currentPath()));
