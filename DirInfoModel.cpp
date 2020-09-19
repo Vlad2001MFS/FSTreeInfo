@@ -32,7 +32,9 @@ DirInfoModel::DirInfoModel() {
 
 }
 
-void DirInfoModel::setTargetDir(const QString &dirPath) {
+void DirInfoModel::startDirectoryScanning(const QString &dirPath) {
+    this->beginResetModel();
+
     mGroupsData.clear();
 
     gatherFilesInfoRecursive(dirPath, mGroupsData);
@@ -48,6 +50,8 @@ void DirInfoModel::setTargetDir(const QString &dirPath) {
     if (mTotalInfo.filesCount > 0) {
         mTotalInfo.avgSize = mTotalInfo.totalSize / mTotalInfo.filesCount;
     }
+
+    this->endResetModel();
 }
 
 int DirInfoModel::rowCount(const QModelIndex &parent) const {

@@ -14,7 +14,7 @@ public:
     DirInfoModel();
 
 public:
-    void setTargetDir(const QString &dirPath);
+    void startDirectoryScanning(const QString &dirPath);
 
     // QAbstractItemModel interface
 public:

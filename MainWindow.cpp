@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     mDirInfoModel.reset(new DirInfoModel());
     ui->dirInfoView->setModel(mDirInfoModel.get());
+    ui->dirInfoView->setRootIndex(mDirInfoModel->index(0, 0));
 }
 
 MainWindow::~MainWindow() {
@@ -30,8 +31,10 @@ void MainWindow::on_fsTreeView_clicked(const QModelIndex &index) {
         auto fileInfo = mFSModel->fileInfo(index);
 
         ui->dirInfoBox->setTitle("Current Directory: " + fileInfo.absoluteFilePath());
-        mDirInfoModel->setTargetDir(fileInfo.absoluteFilePath());
-        ui->dirInfoView->setRootIndex(mDirInfoModel->index(0, 0));
+        mDirInfoModel->startDirectoryScanning(fileInfo.absoluteFilePath());
+
+        ui->dirInfoView->resizeColumnsToContents();
+        ui->dirInfoView->resizeRowsToContents();
 
         ui->subdirsCountLabel->setNum(QDir(fileInfo.absoluteFilePath()).entryList(QDir::AllDirs | QDir::NoDotAndDotDot).size());
 
