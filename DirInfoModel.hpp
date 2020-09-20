@@ -1,18 +1,11 @@
 #pragma once
 #include <QAbstractTableModel>
-#include <QDir>
-#include <QAtomicInt>
-
-struct FileGroupInfo {
-    QString name;
-    size_t filesCount = 0;
-    size_t totalSize = 0;
-    size_t avgSize = 0;
-};
+#include <QAtomicInteger>
+#include <array>
 
 class DirInfoModel : public QAbstractTableModel {
 public:
-    bool scanDirectory(const QString &dirPath, QAtomicInt::QAtomicInteger &isTerminateScanningNeeded);
+    bool scanDirectory(const QString &dirPath, size_t &subDirsCount, QAtomicInt::QAtomicInteger &isTerminateScanningNeeded);
 
     // QAbstractItemModel interface
 public:
@@ -22,7 +15,15 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
 private:
-    QList<FileGroupInfo> mGroupsData;
-    FileGroupInfo mTotalInfo;
-};
+    struct FileGroupInfo {
+        QString name;
+        size_t filesCount = 0;
+        size_t totalSize = 0;
+        size_t avgSize = 0;
+    };
 
+    QVector<FileGroupInfo> mGroupsData;
+    FileGroupInfo mTotalInfo;
+
+    static const std::array<QVariant, 4> TABLE_SECTIONS;
+};

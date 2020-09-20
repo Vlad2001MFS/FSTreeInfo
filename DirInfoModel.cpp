@@ -1,41 +1,42 @@
 #include "DirInfoModel.hpp"
 #include <QDirIterator>
-#include <array>
 
-void gatherFilesInfo(const QString &dirPath, QMap<QString, FileGroupInfo> &data) {
-    QFileInfoList filesList = QDir(dirPath).entryInfoList(QDir::Filter::Files | QDir::Filter::Hidden | QDir::Filter::System);
-    for(const auto &file : filesList) {
-        QString fileExtension = file.suffix().toLower();
-        FileGroupInfo &info = data[fileExtension];
-        info.name = fileExtension;
-        info.filesCount++;
-        info.totalSize += file.size();
-    }
-}
-
-static const std::array<QVariant, 4> TABLE_SECTIONS = {
+const std::array<QVariant, 4> DirInfoModel::TABLE_SECTIONS = {
     "Group",
     "Files count",
     "Total size",
     "Average size",
 };
 
-bool DirInfoModel::scanDirectory(const QString &dirPath, QAtomicInt::QAtomicInteger &isTerminateScanningNeeded) {
+bool DirInfoModel::scanDirectory(const QString &dirPath, size_t &subDirsCount, QAtomicInt::QAtomicInteger &isTerminateScanningNeeded) {
+    QFlags<QDir::Filter> additionalFilters = QDir::NoDotAndDotDot | QDir::Hidden | QDir::System | QDir::Readable | QDir::Writable | QDir::Executable;
+
+    subDirsCount = QDir(dirPath).entryList(QDir::AllDirs | additionalFilters).size();
+
     QMap<QString, FileGroupInfo> groupsData;
-    QDirIterator dirIt(dirPath,
-                       QDir::Filter::AllDirs | QDir::Filter::Hidden | QDir::Filter::System | QDir::Filter::NoDotAndDotDot,
-                       QDirIterator::Subdirectories);
-
-    while (dirIt.hasNext()) {
-        QString nextDirPath = dirIt.next();
-        gatherFilesInfo(nextDirPath, groupsData);
-
+    QDirIterator dirIt(dirPath, QDir::AllDirs | QDir::Files | additionalFilters, QDirIterator::Subdirectories);
+    while (true) {
         if (isTerminateScanningNeeded) {
             isTerminateScanningNeeded = false;
             return false;
         }
+
+        QFileInfo fileInfo = dirIt.fileInfo();
+        if (fileInfo.isFile() || fileInfo.isShortcut()) {
+            QString fileExtension = fileInfo.suffix().toLower();
+            FileGroupInfo &info = groupsData[fileExtension];
+            info.name = fileExtension;
+            info.filesCount++;
+            info.totalSize += fileInfo.size();
+        }
+
+        if (dirIt.hasNext()) {
+            dirIt.next();
+        }
+        else {
+            break;
+        }
     }
-    gatherFilesInfo(dirPath, groupsData);
 
     FileGroupInfo totalInfo;
     totalInfo.name = "All types";
@@ -53,7 +54,7 @@ bool DirInfoModel::scanDirectory(const QString &dirPath, QAtomicInt::QAtomicInte
 
     this->beginResetModel();
 
-    mGroupsData = groupsData.values();
+    mGroupsData = groupsData.values().toVector();
     mTotalInfo = totalInfo;
 
     this->endResetModel();
@@ -62,6 +63,8 @@ bool DirInfoModel::scanDirectory(const QString &dirPath, QAtomicInt::QAtomicInte
 }
 
 int DirInfoModel::rowCount(const QModelIndex &parent) const {
+    Q_UNUSED(parent);
+
     if (mGroupsData.size() > 0) {
         return mGroupsData.size() + 1;
     }
@@ -71,6 +74,8 @@ int DirInfoModel::rowCount(const QModelIndex &parent) const {
 }
 
 int DirInfoModel::columnCount(const QModelIndex &parent) const {
+    Q_UNUSED(parent);
+
     return static_cast<int>(TABLE_SECTIONS.size());
 }
 
@@ -85,7 +90,7 @@ QVariant DirInfoModel::data(const QModelIndex &index, int role) const {
             }
         }
         else {
-            auto group = mGroupsData[index.row() - 1];
+            const FileGroupInfo &group = mGroupsData.at(index.row() - 1);
             switch (index.column()) {
                 case 0: return QVariant(group.name); break;
                 case 1: return QVariant(group.filesCount); break;

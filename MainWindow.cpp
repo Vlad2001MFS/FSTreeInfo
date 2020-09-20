@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     mFSModel.reset(new QFileSystemModel());
     mFSModel->setRootPath(QDir::rootPath());
-    mFSModel->setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
+    mFSModel->setFilter(QDir::AllDirs | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System | QDir::Readable | QDir::Writable | QDir::Executable);
 
     ui->fsTreeView->setModel(mFSModel.get());
     ui->fsTreeView->setCurrentIndex(mFSModel->index(QDir::currentPath()));
@@ -17,8 +17,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     mDirInfoModel.reset(new DirInfoModel());
     ui->dirInfoView->setModel(mDirInfoModel.get());
-    ui->dirInfoView->horizontalHeader()->setSizeAdjustPolicy(QHeaderView::SizeAdjustPolicy::AdjustToContents);
-    ui->dirInfoView->verticalHeader()->setSizeAdjustPolicy(QHeaderView::SizeAdjustPolicy::AdjustToContents);
+    ui->dirInfoView->horizontalHeader()->setSizeAdjustPolicy(QHeaderView::AdjustToContents);
+    ui->dirInfoView->verticalHeader()->setSizeAdjustPolicy(QHeaderView::AdjustToContents);
 
     mThreadPool.setMaxThreadCount(1);
 }
@@ -40,10 +40,11 @@ void MainWindow::on_fsTreeView_clicked(const QModelIndex &index) {
 
         mThreadPool.start([&]() {
             ui->statusbar->showMessage("Scanning directory...");
-            QFileInfo fileInfo = mFSModel->fileInfo(index);
-            if (mDirInfoModel->scanDirectory(fileInfo.absoluteFilePath(), mIsTerminateScanningNeeded)) {
-                ui->dirInfoBox->setTitle("Current Directory: " + fileInfo.absoluteFilePath());
-                ui->subdirsCountLabel->setNum(QDir(fileInfo.absoluteFilePath()).entryList(QDir::AllDirs | QDir::NoDotAndDotDot).size());
+            QString dirPath = mFSModel->fileInfo(index).absoluteFilePath();
+            size_t subDirsCount;
+            if (mDirInfoModel->scanDirectory(dirPath, subDirsCount, mIsTerminateScanningNeeded)) {
+                ui->dirInfoBox->setTitle("Current Directory: " + dirPath);
+                ui->subdirsCountLabel->setNum(static_cast<int>(subDirsCount));
                 ui->statusbar->showMessage("Ready");
             }
         });
