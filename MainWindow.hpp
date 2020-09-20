@@ -3,6 +3,10 @@
 #include <QMainWindow>
 #include <QFileSystemModel>
 #include <QScopedPointer>
+#include <QMutex>
+#include <QThreadPool>
+#include <QtConcurrent/QtConcurrent>
+#include <QAtomicInt>
 #include "DirInfoModel.hpp"
 
 QT_BEGIN_NAMESPACE
@@ -23,4 +27,7 @@ private:
     Ui::MainWindow *ui;
     QScopedPointer<QFileSystemModel> mFSModel;
     QScopedPointer<DirInfoModel> mDirInfoModel;
+    QModelIndex mCurrentFSModelIndex;
+    QAtomicInt::QAtomicInteger mIsTerminateScanningNeeded;
+    QThreadPool mThreadPool;
 };

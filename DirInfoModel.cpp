@@ -1,5 +1,6 @@
 #include "DirInfoModel.hpp"
 #include <QDirIterator>
+#include <QCoreApplication>
 
 void gatherFilesInfo(const QString &dirPath, QMap<QString, FileGroupInfo> &data) {
     QFileInfoList filesList = QDir(dirPath).entryInfoList(QDir::Filter::Files | QDir::Filter::Hidden | QDir::Filter::System);
@@ -12,15 +13,6 @@ void gatherFilesInfo(const QString &dirPath, QMap<QString, FileGroupInfo> &data)
     }
 }
 
-void gatherFilesInfoRecursive(const QString &dirPath, QMap<QString, FileGroupInfo> &data) {
-    QDirIterator dirIt(dirPath, QDir::Filter::AllDirs | QDir::Filter::Hidden | QDir::Filter::System | QDir::Filter::NoDotAndDotDot, QDirIterator::Subdirectories);
-    while (dirIt.hasNext()) {
-        QString nextDirPath = dirIt.next();
-        gatherFilesInfo(nextDirPath, data);
-    }
-    gatherFilesInfo(dirPath, data);
-}
-
 static const QVariant TABLE_SECTIONS[] = {
     "Group",
     "Files count",
@@ -30,29 +22,43 @@ static const QVariant TABLE_SECTIONS[] = {
 static const int TABLE_SECTIONS_COUNT = sizeof(TABLE_SECTIONS) / sizeof(TABLE_SECTIONS[0]);
 
 DirInfoModel::DirInfoModel() {
-
 }
 
-void DirInfoModel::startDirectoryScanning(const QString &dirPath) {
-    this->beginResetModel();
+bool DirInfoModel::scanDirectory(const QString &dirPath, QAtomicInt::QAtomicInteger &isTerminateScanningNeeded) {
+    QMap<QString, FileGroupInfo> groupsData;
 
-    mGroupsData.clear();
+    QDirIterator dirIt(dirPath, QDir::Filter::AllDirs | QDir::Filter::Hidden | QDir::Filter::System | QDir::Filter::NoDotAndDotDot, QDirIterator::Subdirectories);
+    while (dirIt.hasNext()) {
+        QString nextDirPath = dirIt.next();
+        gatherFilesInfo(nextDirPath, groupsData);
 
-    gatherFilesInfoRecursive(dirPath, mGroupsData);
+        if (isTerminateScanningNeeded) {
+            isTerminateScanningNeeded = false;
+            return false;
+        }
+    }
+    gatherFilesInfo(dirPath, groupsData);
 
-    mTotalInfo = FileGroupInfo();
-    for (auto &group : mGroupsData) {
+    FileGroupInfo totalInfo;
+    for (auto &group : groupsData) {
         group.avgSize = group.totalSize / group.filesCount;
 
-        mTotalInfo.name = "All types";
-        mTotalInfo.filesCount += group.filesCount;
-        mTotalInfo.totalSize += group.totalSize;
+        totalInfo.name = "All types";
+        totalInfo.filesCount += group.filesCount;
+        totalInfo.totalSize += group.totalSize;
     }
-    if (mTotalInfo.filesCount > 0) {
-        mTotalInfo.avgSize = mTotalInfo.totalSize / mTotalInfo.filesCount;
+    if (totalInfo.filesCount > 0) {
+        totalInfo.avgSize = totalInfo.totalSize / totalInfo.filesCount;
     }
 
+    this->beginResetModel();
+
+    mGroupsData = groupsData;
+    mTotalInfo = totalInfo;
+
     this->endResetModel();
+
+    return true;
 }
 
 int DirInfoModel::rowCount(const QModelIndex &parent) const {

@@ -3,7 +3,8 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow) {
+    , ui(new Ui::MainWindow)
+    , mIsTerminateScanningNeeded(false) {
     ui->setupUi(this);
 
     mFSModel.reset(new QFileSystemModel());
@@ -16,28 +17,35 @@ MainWindow::MainWindow(QWidget *parent)
 
     mDirInfoModel.reset(new DirInfoModel());
     ui->dirInfoView->setModel(mDirInfoModel.get());
-    ui->dirInfoView->setRootIndex(mDirInfoModel->index(0, 0));
+    ui->dirInfoView->horizontalHeader()->setSizeAdjustPolicy(QHeaderView::SizeAdjustPolicy::AdjustToContents);
+    ui->dirInfoView->verticalHeader()->setSizeAdjustPolicy(QHeaderView::SizeAdjustPolicy::AdjustToContents);
+
+    mThreadPool.setMaxThreadCount(1);
 }
 
 MainWindow::~MainWindow() {
+    mIsTerminateScanningNeeded = true;
+    mThreadPool.waitForDone();
     delete ui;
 }
 
 void MainWindow::on_fsTreeView_clicked(const QModelIndex &index) {
-    if (mFSModel->isDir(index)) {
-        ui->statusbar->showMessage("Scanning directory...");
-        ui->statusbar->repaint();
+    if (mCurrentFSModelIndex != index && mFSModel->isDir(index)) {
+        mCurrentFSModelIndex = index;
 
-        auto fileInfo = mFSModel->fileInfo(index);
+        mThreadPool.clear();
+        mIsTerminateScanningNeeded = true;
+        mThreadPool.waitForDone();
+        mIsTerminateScanningNeeded = false;
 
-        ui->dirInfoBox->setTitle("Current Directory: " + fileInfo.absoluteFilePath());
-        mDirInfoModel->startDirectoryScanning(fileInfo.absoluteFilePath());
-
-        ui->dirInfoView->resizeColumnsToContents();
-        ui->dirInfoView->resizeRowsToContents();
-
-        ui->subdirsCountLabel->setNum(QDir(fileInfo.absoluteFilePath()).entryList(QDir::AllDirs | QDir::NoDotAndDotDot).size());
-
-        ui->statusbar->showMessage("Ready");
+        mThreadPool.start([&]() {
+            ui->statusbar->showMessage("Scanning directory...");
+            QFileInfo fileInfo = mFSModel->fileInfo(index);
+            if (mDirInfoModel->scanDirectory(fileInfo.absoluteFilePath(), mIsTerminateScanningNeeded)) {
+                ui->dirInfoBox->setTitle("Current Directory: " + fileInfo.absoluteFilePath());
+                ui->subdirsCountLabel->setNum(QDir(fileInfo.absoluteFilePath()).entryList(QDir::AllDirs | QDir::NoDotAndDotDot).size());
+                ui->statusbar->showMessage("Ready");
+            }
+        });
     }
 }

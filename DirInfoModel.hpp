@@ -1,6 +1,10 @@
 #pragma once
 #include <QAbstractTableModel>
 #include <QDir>
+#include <QThreadPool>
+#include <QRecursiveMutex>
+#include <QStatusBar>
+#include <QAtomicInt>
 
 struct FileGroupInfo {
     QString name;
@@ -14,7 +18,7 @@ public:
     DirInfoModel();
 
 public:
-    void startDirectoryScanning(const QString &dirPath);
+    bool scanDirectory(const QString &dirPath, QAtomicInt::QAtomicInteger &isTerminateScanningNeeded);
 
     // QAbstractItemModel interface
 public:
@@ -26,5 +30,6 @@ public:
 private:
     QMap<QString, FileGroupInfo> mGroupsData;
     FileGroupInfo mTotalInfo;
+    //QRecursiveMutex mGroupsDataAndTotalInfoMutex;
 };
 
