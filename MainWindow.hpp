@@ -1,11 +1,8 @@
 #pragma once
-
 #include <QMainWindow>
 #include <QFileSystemModel>
 #include <QScopedPointer>
-#include <QMutex>
 #include <QThreadPool>
-#include <QtConcurrent/QtConcurrent>
 #include <QAtomicInt>
 #include "DirInfoModel.hpp"
 
