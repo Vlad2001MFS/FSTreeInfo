@@ -4,7 +4,11 @@
 #include <array>
 
 class DirInfoModel : public QAbstractTableModel {
+    Q_OBJECT
+
 public:
+    DirInfoModel();
+
     bool scanDirectory(const QString &dirPath, size_t &subDirsCount, QAtomicInt::QAtomicInteger &isTerminateScanningNeeded);
 
     // QAbstractItemModel interface
@@ -25,5 +29,5 @@ private:
     QVector<FileGroupInfo> mGroupsData;
     FileGroupInfo mTotalInfo;
 
-    static const std::array<QVariant, 4> TABLE_SECTIONS;
+    const std::array<QVariant, 4> TABLE_SECTIONS;
 };

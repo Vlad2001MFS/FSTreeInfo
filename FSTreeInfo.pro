@@ -21,7 +21,7 @@ FORMS += \
     MainWindow.ui
 
 TRANSLATIONS += \
-    FSTreeInfo_en_US.ts
+    FSTreeInfo_ru.ts
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

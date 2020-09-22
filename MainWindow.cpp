@@ -7,7 +7,7 @@ MainWindow::MainWindow(QWidget *parent)
     , mIsTerminateScanningNeeded(false) {
     ui->setupUi(this);
 
-    mFSModel.reset(new QFileSystemModel());
+    mFSModel.reset(new QFileSystemModel(this));
     mFSModel->setRootPath(QDir::rootPath());
     mFSModel->setFilter(QDir::AllDirs | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System | QDir::Readable | QDir::Writable | QDir::Executable);
 
@@ -39,13 +39,13 @@ void MainWindow::on_fsTreeView_clicked(const QModelIndex &index) {
         mIsTerminateScanningNeeded = false;
 
         mThreadPool.start([&]() {
-            ui->statusbar->showMessage("Scanning directory...");
+            ui->statusbar->showMessage(tr("Scanning directory..."));
             QString dirPath = mFSModel->fileInfo(index).absoluteFilePath();
             size_t subDirsCount;
             if (mDirInfoModel->scanDirectory(dirPath, subDirsCount, mIsTerminateScanningNeeded)) {
-                ui->dirInfoBox->setTitle("Current Directory: " + dirPath);
+                ui->dirInfoBox->setTitle(tr("Current Directory: ") + dirPath);
                 ui->subdirsCountLabel->setNum(static_cast<int>(subDirsCount));
-                ui->statusbar->showMessage("Ready");
+                ui->statusbar->showMessage(tr("Ready"));
             }
         });
     }

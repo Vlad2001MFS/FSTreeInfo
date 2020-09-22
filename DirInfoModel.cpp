@@ -1,12 +1,15 @@
 #include "DirInfoModel.hpp"
 #include <QDirIterator>
+#include <QCoreApplication>
 
-const std::array<QVariant, 4> DirInfoModel::TABLE_SECTIONS = {
-    "Group",
-    "Files count",
-    "Total size",
-    "Average size",
-};
+DirInfoModel::DirInfoModel()
+    : TABLE_SECTIONS {
+          tr("Type"),
+          tr("Files count"),
+          tr("Total size"),
+          tr("Average size"),
+      } {
+}
 
 bool DirInfoModel::scanDirectory(const QString &dirPath, size_t &subDirsCount, QAtomicInt::QAtomicInteger &isTerminateScanningNeeded) {
     QFlags<QDir::Filter> additionalFilters = QDir::NoDotAndDotDot | QDir::Hidden | QDir::System | QDir::Readable | QDir::Writable | QDir::Executable;
@@ -39,7 +42,7 @@ bool DirInfoModel::scanDirectory(const QString &dirPath, size_t &subDirsCount, Q
     }
 
     FileGroupInfo totalInfo;
-    totalInfo.name = "All types";
+    totalInfo.name = tr("All types");
     for (auto &group : groupsData) {
         if (group.filesCount > 0) {
             group.avgSize = group.totalSize / group.filesCount;
