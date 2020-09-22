@@ -18,7 +18,9 @@ MainWindow::MainWindow(QWidget *parent)
     mDirInfoModel.reset(new DirInfoModel());
     ui->dirInfoView->setModel(mDirInfoModel.get());
     ui->dirInfoView->horizontalHeader()->setSizeAdjustPolicy(QHeaderView::AdjustToContents);
+    ui->dirInfoView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->dirInfoView->verticalHeader()->setSizeAdjustPolicy(QHeaderView::AdjustToContents);
+    ui->dirInfoView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     mThreadPool.setMaxThreadCount(1);
 }
