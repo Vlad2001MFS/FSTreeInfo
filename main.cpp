@@ -8,15 +8,14 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
     QString translationsPath = QDir::currentPath() + "/translations/";
-    QString qtTranslationsPath = translationsPath + "qt/";
     QLocale locale = QLocale::system();
 
-    QTranslator qtBaseTranslator;
-    if (qtBaseTranslator.load(locale, "qtbase", "_", qtTranslationsPath)) {
-        app.installTranslator(&qtBaseTranslator);
+    QTranslator qtTranslator;
+    if (qtTranslator.load(locale, "qt", "_", translationsPath)) {
+        app.installTranslator(&qtTranslator);
     }
     else {
-        QMessageBox::warning(nullptr, "Warning", "QtBase translations file is not found.");
+        QMessageBox::warning(nullptr, "Warning", "Qt translations file is not found.");
     }
 
     QTranslator translator;
