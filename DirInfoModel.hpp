@@ -19,6 +19,8 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
 private:
+    static QString mGetHumanReadableSize(size_t size);
+
     struct FileGroupInfo {
         QString name;
         size_t filesCount = 0;

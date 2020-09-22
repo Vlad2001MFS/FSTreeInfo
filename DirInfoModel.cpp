@@ -88,8 +88,8 @@ QVariant DirInfoModel::data(const QModelIndex &index, int role) const {
             switch (index.column()) {
                 case 0: return QVariant(mTotalInfo.name); break;
                 case 1: return QVariant(mTotalInfo.filesCount); break;
-                case 2: return QVariant(mTotalInfo.totalSize); break;
-                case 3: return QVariant(mTotalInfo.avgSize); break;
+                case 2: return QVariant(mGetHumanReadableSize(mTotalInfo.totalSize)); break;
+                case 3: return QVariant(mGetHumanReadableSize(mTotalInfo.avgSize)); break;
             }
         }
         else {
@@ -97,8 +97,8 @@ QVariant DirInfoModel::data(const QModelIndex &index, int role) const {
             switch (index.column()) {
                 case 0: return QVariant(group.name); break;
                 case 1: return QVariant(group.filesCount); break;
-                case 2: return QVariant(group.totalSize); break;
-                case 3: return QVariant(group.avgSize); break;
+                case 2: return QVariant(mGetHumanReadableSize(group.totalSize)); break;
+                case 3: return QVariant(mGetHumanReadableSize(group.avgSize)); break;
             }
         }
     }
@@ -118,4 +118,23 @@ QVariant DirInfoModel::headerData(int section, Qt::Orientation orientation, int 
     else {
         return QVariant();
     }
+}
+
+QString DirInfoModel::mGetHumanReadableSize(size_t size) {
+    static const std::array<QString, 5> unitsStr = {
+        tr("B"),
+        tr("KB"),
+        tr("MB"),
+        tr("GB"),
+        tr("TB"),
+    };
+
+    double new_size = size;
+    int unitOrder = 0;
+    while (new_size > 1024.0 && static_cast<size_t>(unitOrder + 1) < unitsStr.size()) {
+        new_size /= 1024.0;
+        unitOrder++;
+    }
+
+    return QString("%1 %2").arg(new_size, 0, 'f', 2).arg(unitsStr[unitOrder]);
 }

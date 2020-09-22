@@ -28,6 +28,31 @@
         <source>All types</source>
         <translation>Все типы</translation>
     </message>
+    <message>
+        <location filename="DirInfoModel.cpp" line="125"/>
+        <source>B</source>
+        <translation>Б</translation>
+    </message>
+    <message>
+        <location filename="DirInfoModel.cpp" line="126"/>
+        <source>KB</source>
+        <translation>КБ</translation>
+    </message>
+    <message>
+        <location filename="DirInfoModel.cpp" line="127"/>
+        <source>MB</source>
+        <translation>МБ</translation>
+    </message>
+    <message>
+        <location filename="DirInfoModel.cpp" line="128"/>
+        <source>GB</source>
+        <translation>ГБ</translation>
+    </message>
+    <message>
+        <location filename="DirInfoModel.cpp" line="129"/>
+        <source>TB</source>
+        <translation>ТБ</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
