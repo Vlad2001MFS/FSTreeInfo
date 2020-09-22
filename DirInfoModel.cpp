@@ -1,6 +1,5 @@
 #include "DirInfoModel.hpp"
 #include <QDirIterator>
-#include <QCoreApplication>
 
 DirInfoModel::DirInfoModel()
     : TABLE_SECTIONS {
@@ -108,11 +107,11 @@ QVariant DirInfoModel::data(const QModelIndex &index, int role) const {
 
 QVariant DirInfoModel::headerData(int section, Qt::Orientation orientation, int role) const {
     if (role == Qt::DisplayRole) {
-        if (orientation == Qt::Vertical) {
-            return QVariant(section + 1);
+        if (orientation == Qt::Horizontal) {
+            return TABLE_SECTIONS[section];
         }
         else {
-            return TABLE_SECTIONS[section];
+            return QVariant(section + 1);
         }
     }
     else {
@@ -130,8 +129,8 @@ QString DirInfoModel::mGetHumanReadableSize(size_t size) {
     };
 
     double new_size = size;
-    int unitOrder = 0;
-    while (new_size > 1024.0 && static_cast<size_t>(unitOrder + 1) < unitsStr.size()) {
+    size_t unitOrder = 0;
+    while (new_size > 1024.0 && (unitOrder + 1) < unitsStr.size()) {
         new_size /= 1024.0;
         unitOrder++;
     }

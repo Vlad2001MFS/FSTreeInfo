@@ -2,7 +2,6 @@
 #include <QApplication>
 #include <QTranslator>
 #include <QMessageBox>
-#include <QLibraryInfo>
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
